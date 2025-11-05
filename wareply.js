@@ -2,36 +2,12 @@ const { Client } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const fs = require('fs');
 
-// Environment check
-console.log('Node version:', process.version);
-console.log('Current directory:', process.cwd());
-console.log('__dirname:', __dirname);
+const client = new Client({
+    puppeteer: {
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    }
+});
 
-async function initializeClient(retries = 3) {
-    for (let i = 0; i < retries; i++) {
-        try {
-            console.log(`Initialization attempt ${i + 1}/${retries}`);
-            
-            const client = new Client({
-                puppeteer: {
-                    headless: true,
-                    args: [
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-accelerated-2d-canvas',
-                        '--no-first-run',
-                        '--no-zygote',
-                        '--single-process',
-                        '--disable-gpu',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding'
-                    ],
-                    timeout: 120000, // Increased timeout
-                    executablePath: process.env.CHROME_BIN || process.env.PUPPETEER_EXECUTABLE_PATH
-                }
-            });
 
             client.on('qr', qr => {
                 console.log('QR Code generated');
@@ -95,4 +71,5 @@ process.on('SIGTERM', () => {
 initializeClient().catch(error => {
     console.error('Failed to initialize client after all retries:', error);
     process.exit(1);
+
 });
